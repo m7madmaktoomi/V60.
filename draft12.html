@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V60 Pro | حاسبة القهوة</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            font-family: 'Segoe UI', 'Tajawal', system-ui, sans-serif;
+            min-height: 100vh;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: #fffaf2;
+            border-radius: 40px;
+            overflow: hidden;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            background: #2c1810;
+            padding: 1.3rem;
+            text-align: center;
+            color: #f5e6d3;
+        }
+
+        .header h1 {
+            font-size: 1.7rem;
+        }
+
+        .content {
+            padding: 1.5rem;
+        }
+
+        .quick-settings {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .field {
+            background: white;
+            border-radius: 24px;
+            padding: 0.7rem 1rem;
+            border: 1px solid #e0cfbb;
+        }
+
+        .field label {
+            font-weight: 700;
+            color: #5a3e28;
+            display: block;
+            font-size: 0.75rem;
+            margin-bottom: 5px;
+        }
+
+        select {
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 40px;
+            border: 1px solid #dcc9af;
+            background: #fefaf5;
+            font-size: 0.9rem;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .recipe-tabs {
+            display: flex;
+            gap: 0.8rem;
+            margin: 1rem 0;
+        }
+
+        .tab {
+            flex: 1;
+            background: #f0e4d4;
+            border: 2px solid #dcc9af;
+            border-radius: 50px;
+            padding: 0.7rem;
+            text-align: center;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .tab.active {
+            background: #b47c48;
+            border-color: #8b5c2e;
+            color: white;
+        }
+
+        .temp-toggle {
+            display: flex;
+            gap: 0.8rem;
+            margin: 1rem 0;
+        }
+
+        .temp-btn {
+            flex: 1;
+            background: #f0e4d4;
+            border: 2px solid #dcc9af;
+            border-radius: 50px;
+            padding: 0.6rem;
+            text-align: center;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .temp-btn.active-temp {
+            background: #b47c48;
+            border-color: #8b5c2e;
+            color: white;
+        }
+
+        .coffee-row {
+            display: flex;
+            gap: 10px;
+            margin: 1.2rem 0;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .coffee-row input {
+            flex: 2;
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 12px 15px;
+            border-radius: 50px;
+            border: 1.5px solid #dcc9af;
+            background: #fefaf5;
+            outline: none;
+        }
+
+        .coffee-row input::placeholder {
+            color: #c0a57a;
+            font-weight: normal;
+            font-size: 0.9rem;
+        }
+
+        .coffee-row button {
+            background: #7b583b;
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .coffee-row button:hover {
+            background: #9e724c;
+        }
+
+        .results {
+            background: #fffbf4;
+            border-radius: 32px;
+            padding: 1.2rem;
+            margin-top: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 0.7rem 0;
+            border-bottom: 1px solid #eedbc2;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .label {
+            font-weight: 600;
+            color: #7b5c3c;
+        }
+
+        .value {
+            font-weight: 800;
+            font-size: 1.3rem;
+            font-family: monospace;
+            color: #2a1f13;
+        }
+
+        .pours {
+            display: flex;
+            gap: 10px;
+            margin: 12px 0;
+        }
+
+        .pour-card {
+            background: #f3e7d8;
+            flex: 1;
+            text-align: center;
+            border-radius: 24px;
+            padding: 0.6rem;
+        }
+
+        .pour-card .pour-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #b1662c;
+        }
+
+        .pour-card .pour-value {
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+
+        .increment-note {
+            font-size: 0.65rem;
+            color: #b68a5a;
+            text-align: center;
+            margin-top: 6px;
+        }
+
+        .error-msg {
+            text-align: center;
+            color: #c97e5a;
+            padding: 1rem;
+            font-weight: 500;
+        }
+
+        hr {
+            margin: 12px 0;
+            border: 1px solid #eedbc2;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>⚖️ V60 ·  المكتومي</h1>
+    </div>
+    <div class="content">
+        <div class="quick-settings">
+            <div class="field">
+                <label>🌍 نوع البن</label>
+                <select id="bean">
+                    <option value="ethiopia">🇪🇹 إثيوبيا</option>
+                    <option value="colombia" selected>🇨🇴 كولومبيا</option>
+                    <option value="brazil">🇧🇷 البرازيل</option>
+                    <option value="kenya">🇰🇪 كينيا</option>
+                    <option value="yemen">🇾🇪 اليمن</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>🔥 درجة التحميص</label>
+                <select id="roast">
+                    <option value="light">خفيف</option>
+                    <option value="medium" selected>متوسط</option>
+                    <option value="dark">داكن</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="recipe-tabs">
+            <div class="tab" data-recipe="my">⭐ ريشيوي الخاص</div>
+            <div class="tab" data-recipe="global">🌍 الريشيو العالمي</div>
+        </div>
+
+        <div class="temp-toggle">
+            <div class="temp-btn" data-temp="cold">❄️ بارد</div>
+            <div class="temp-btn" data-temp="hot">🔥 حار</div>
+        </div>
+
+        <div class="coffee-row">
+            <input type="number" id="coffee" placeholder="أدخل كمية البن بالجرام" step="1" min="1">
+            <button id="calcBtn">احسب</button>
+        </div>
+
+        <div id="results" class="results">
+            <div style="text-align:center; color:#b4956b;">حدد الكمية واضغط حساب</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // درجة الحرارة حسب نوع البن ودرجة التحميص (تلقائية فقط)
+    const tempByBeanAndRoast = {
+        ethiopia: { light: 96, medium: 94, dark: 90 },
+        colombia: { light: 95, medium: 93, dark: 89 },
+        brazil: { light: 94, medium: 92, dark: 88 },
+        kenya: { light: 96, medium: 94, dark: 90 },
+        yemen: { light: 95, medium: 93, dark: 89 }
+    };
+
+    // الحصول على درجة الحرارة الحالية حسب الاختيارات
+    function getCurrentWaterTemp() {
+        const bean = document.getElementById('bean').value;
+        const roast = document.getElementById('roast').value;
+        return tempByBeanAndRoast[bean][roast];
+    }
+
+    // بيانات الريشيوات
+    const RECIPES = {
+        my: {
+            baseCoffee: 10,
+            baseHotWater: 69,
+            baseIce: 46,
+            pours: [30, 75, 115],
+            name: "ريشيوي الخاص"
+        },
+        global: {
+            baseCoffee: 20,
+            baseHotWater: 150,
+            baseIce: 150,
+            pours: [50, 100, 150],
+            name: "العالمي"
+        }
+    };
+
+    let activeRecipe = "global";
+    let activeTemp = "cold";
+
+    function calculate() {
+        const coffeeInput = document.getElementById('coffee').value;
+        let coffee = parseFloat(coffeeInput);
+        
+        if (isNaN(coffee) || coffee <= 0 || coffeeInput === "") {
+            document.getElementById('results').innerHTML = `
+                <div class="error-msg">
+                    ⚠️ الرجاء إدخال كمية البن بالجرام
+                </div>
+            `;
+            return;
+        }
+        
+        const recipe = RECIPES[activeRecipe];
+        const ratio = coffee / recipe.baseCoffee;
+        
+        let hotWater, ice, totalLiquid, pours;
+        let increment1, increment2, increment3;
+        
+        if (activeTemp === "cold") {
+            hotWater = recipe.baseHotWater * ratio;
+            ice = recipe.baseIce * ratio;
+            totalLiquid = hotWater + ice;
+            pours = recipe.pours.map(p => p * ratio);
+            increment1 = pours[0];
+            increment2 = pours[1] - pours[0];
+            increment3 = pours[2] - pours[1];
+        } else {
+            const totalWaterHot = (recipe.baseHotWater + recipe.baseIce) * ratio;
+            hotWater = totalWaterHot;
+            ice = 0;
+            totalLiquid = hotWater;
+            const baseTotal = recipe.baseHotWater + recipe.baseIce;
+            const newPours = recipe.pours.map(p => p * ratio * (totalWaterHot / (baseTotal * ratio)));
+            pours = newPours;
+            increment1 = pours[0];
+            increment2 = pours[1] - pours[0];
+            increment3 = pours[2] - pours[1];
+        }
+        
+        const bean = document.getElementById('bean').value;
+        const roast = document.getElementById('roast').value;
+        const waterTemp = getCurrentWaterTemp();
+        
+        const beanNames = { ethiopia: "🇪🇹 إثيوبيا", colombia: "🇨🇴 كولومبيا", brazil: "🇧🇷 البرازيل", kenya: "🇰🇪 كينيا", yemen: "🇾🇪 اليمن" };
+        const roastNames = { light: "خفيف", medium: "متوسط", dark: "داكن" };
+        const tempName = activeTemp === "cold" ? "❄️ بارد" : "🔥 حار";
+        
+        document.getElementById('results').innerHTML = `
+            <div class="result-item">
+                <span class="label">☕ كمية البن</span>
+                <span class="value">${coffee.toFixed(1)} g</span>
+            </div>
+            <div class="result-item">
+                <span class="label">🌡️ درجة حرارة الماء</span>
+                <span class="value">${waterTemp} °C</span>
+            </div>
+            <div class="result-item">
+                <span class="label">🌡️ نوع التحضير</span>
+                <span class="value" style="font-size:1rem;">${tempName}</span>
+            </div>
+            <div class="result-item">
+                <span class="label">🌍 البن / التحميص</span>
+                <span class="value" style="font-size:1rem;">${beanNames[bean]} · ${roastNames[roast]}</span>
+            </div>
+            <hr>
+            <div class="result-item">
+                <span class="label">💧 ماء ساخن</span>
+                <span class="value">${hotWater.toFixed(1)} g</span>
+            </div>
+            ${activeTemp === "cold" ? `
+            <div class="result-item">
+                <span class="label">🧊 ثلج</span>
+                <span class="value">${ice.toFixed(1)} g</span>
+            </div>
+            ` : ''}
+            <div class="result-item">
+                <span class="label">📦 إجمالي السائل</span>
+                <span class="value">${totalLiquid.toFixed(1)} g</span>
+            </div>
+            <hr>
+            <div style="font-weight:700; margin: 8px 0 6px;">⏱️ الصبات</div>
+            <div class="pours">
+                <div class="pour-card">
+                    <div class="pour-label">🌱 1</div>
+                    <div class="pour-value">${pours[0].toFixed(1)} g</div>
+                    <div class="increment-note">+ ${increment1.toFixed(1)} g</div>
+                </div>
+                <div class="pour-card">
+                    <div class="pour-label">💧 2</div>
+                    <div class="pour-value">${pours[1].toFixed(1)} g</div>
+                    <div class="increment-note">+ ${increment2.toFixed(1)} g</div>
+                </div>
+                <div class="pour-card">
+                    <div class="pour-label">✨ 3</div>
+                    <div class="pour-value">${pours[2].toFixed(1)} g</div>
+                    <div class="increment-note">+ ${increment3.toFixed(1)} g</div>
+                </div>
+            </div>
+        `;
+    }
+
+    // أحداث التغيير
+    document.getElementById('bean').addEventListener('change', () => calculate());
+    document.getElementById('roast').addEventListener('change', () => calculate());
+    document.getElementById('coffee').addEventListener('input', () => calculate());
+    document.getElementById('calcBtn').addEventListener('click', () => calculate());
+    
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            activeRecipe = tab.dataset.recipe;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            calculate();
+        });
+    });
+    
+    document.querySelectorAll('.temp-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            activeTemp = btn.dataset.temp;
+            document.querySelectorAll('.temp-btn').forEach(b => b.classList.remove('active-temp'));
+            btn.classList.add('active-temp');
+            calculate();
+        });
+    });
+    
+    // التشغيل الأولي
+    document.querySelector('.tab[data-recipe="global"]').classList.add('active');
+    document.querySelector('.temp-btn[data-temp="cold"]').classList.add('active-temp');
+    calculate();
+</script>
+</body>
+</html>
